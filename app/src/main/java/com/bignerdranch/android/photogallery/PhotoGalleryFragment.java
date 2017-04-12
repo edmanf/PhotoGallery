@@ -21,6 +21,7 @@ public class PhotoGalleryFragment extends Fragment {
 
     private static final String TAG = "PhotoGalleryFragment";
 
+
     private RecyclerView mPhotoRecyclerView;
 
     public static PhotoGalleryFragment newInstance() {
@@ -50,13 +51,7 @@ public class PhotoGalleryFragment extends Fragment {
     private class FetchItemsTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            try {
-                String result = new FlickerFetchr()
-                        .getUrlString("https://www.bignerdranch.com");
-                Log.i(TAG, "Fetched content of URL: " + result);
-            } catch (IOException e) {
-                Log.e(TAG, "Failed to fetch URL: ", e);
-            }
+            new FlickerFetchr().fetchItems();
             return null;
         }
     }
