@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,7 +54,8 @@ public class FlickerFetchr {
         return new String(getUrlBytes(urlSpec));
     }
 
-    public void fetchItems() {
+    public List<GalleryItem> fetchItems() {
+        List<GalleryItem> items = new ArrayList<>();
         try {
             String url = Uri.parse("https://api.flickr.com/services/rest/")
                     .buildUpon()
@@ -66,11 +68,14 @@ public class FlickerFetchr {
             String jsonString = getUrlString(url);
             Log.i(TAG, "Received JSON: " + jsonString);
             JSONObject jsonBody = new JSONObject(jsonString);
+            parseItems(items, jsonBody);
         } catch (JSONException je) {
             Log.e(TAG, "Failed to parse JSON", je);
         } catch (IOException e) {
             Log.e(TAG, "Failed to fetch items", e);
         }
+
+        return items;
     }
 
     private void parseItems(List<GalleryItem> items, JSONObject jsonBody)
@@ -83,6 +88,14 @@ public class FlickerFetchr {
 
             GalleryItem item = new GalleryItem();
             item.setId(photoJsonObject.getString("title"));
+
+            if (!photoJsonObject.has("url_s")) {
+                // url_s is the url of the small version of picture if avail.
+                continue;
+            }
+
+            item.setUrl(photoJsonObject.getString("url_s"));
+            items.add(item);
         }
     }
 }
