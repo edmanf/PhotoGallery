@@ -3,11 +3,16 @@ package com.bignerdranch.android.photogallery;
 import android.net.Uri;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 /**
  * Created by t7500 on 4/1/2017.
@@ -60,8 +65,24 @@ public class FlickerFetchr {
                     .build().toString();
             String jsonString = getUrlString(url);
             Log.i(TAG, "Received JSON: " + jsonString);
+            JSONObject jsonBody = new JSONObject(jsonString);
+        } catch (JSONException je) {
+            Log.e(TAG, "Failed to parse JSON", je);
         } catch (IOException e) {
             Log.e(TAG, "Failed to fetch items", e);
+        }
+    }
+
+    private void parseItems(List<GalleryItem> items, JSONObject jsonBody)
+        throws IOException, JSONException {
+        JSONObject photosJsonObject = jsonBody.getJSONObject("photos");
+        JSONArray photoJsonArray = photosJsonObject.getJSONArray("photo");
+
+        for (int i = 0; i < photoJsonArray.length(); i++) {
+            JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
+
+            GalleryItem item = new GalleryItem();
+            item.setId(photoJsonObject.getString("title"));
         }
     }
 }
